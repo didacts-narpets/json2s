@@ -1,0 +1,146 @@
+{
+  "kind": "youtube#searchListResponse",
+  "etag": "\"9Y5jTkxN1JET3y-M4wKMA5aK7Mk/KcjatxuSBD7qKcs-Cgx7o-aqELY\"",
+  "nextPageToken": "CAUQAA",
+  "pageInfo": {
+    "totalResults": 259155,
+    "resultsPerPage": 5
+  },
+  "items": [
+    {
+      "kind": "youtube#searchResult",
+      "etag": "\"9Y5jTkxN1JET3y-M4wKMA5aK7Mk/Xp5ps57KvKHFOrBJjoqidJAFqi0\"",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "grvvKURwGNg"
+      },
+      "snippet": {
+        "publishedAt": "2013-06-12T19:56:37.000Z",
+        "channelId": "UCkQX1tChV7Z7l1LFF4L9j_g",
+        "title": "Scala for the Intrigued",
+        "description": "Are you a Java developer who's curious about Scala? Well, then this talk is for you. We start with an overview of the language, consider some its key strengt...",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/grvvKURwGNg/default.jpg"
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/grvvKURwGNg/mqdefault.jpg"
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/grvvKURwGNg/hqdefault.jpg"
+          }
+        },
+        "channelTitle": "MarakanaTechTV",
+        "liveBroadcastContent": "none"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "\"9Y5jTkxN1JET3y-M4wKMA5aK7Mk/6zpI_qrQnLtYi0di4PCV051MgLs\"",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "Ytfw8Bg86p4"
+      },
+      "snippet": {
+        "publishedAt": "2012-06-05T23:18:37.000Z",
+        "channelId": "UCEvjiWkK2BoIH819T-buioQ",
+        "title": "Scala Language Basics",
+        "description": "This video begins the real introduction to Scala. We start with certain basic programming language constructs such as tokens, statements, expressions, types,...",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/Ytfw8Bg86p4/default.jpg"
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Ytfw8Bg86p4/mqdefault.jpg"
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/Ytfw8Bg86p4/hqdefault.jpg"
+          }
+        },
+        "channelTitle": "DrMarkCLewis",
+        "liveBroadcastContent": "none"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "\"9Y5jTkxN1JET3y-M4wKMA5aK7Mk/9lBoUyMJQZzr0RITpf7P9Kv1hpg\"",
+      "id": {
+        "kind": "youtube#playlist",
+        "playlistId": "PLP9bW4yPvt8LUTHodIGypmw71zyl_bjPy"
+      },
+      "snippet": {
+        "publishedAt": "2012-11-30T21:34:30.000Z",
+        "channelId": "UCgYHfYzvwqEa9c5Mr2DRmOw",
+        "title": "Scala Tutorial",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/EWV916OCzW8/default.jpg"
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/EWV916OCzW8/mqdefault.jpg"
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/EWV916OCzW8/hqdefault.jpg"
+          }
+        },
+        "channelTitle": "coderz4life",
+        "liveBroadcastContent": "none"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "\"9Y5jTkxN1JET3y-M4wKMA5aK7Mk/d6eMJq_qqIa_s3NwvR6qZPqLgy8\"",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "i9FRST87K_c"
+      },
+      "snippet": {
+        "publishedAt": "2009-12-02T08:36:07.000Z",
+        "channelId": "UCJIRjr4E0TjSGqStLmF9BIQ",
+        "title": "Scala Tutorial 1",
+        "description": "These tutorials are designed to ease a programmer into a functional style from an imperative background. This tutorial guides you through the installation of...",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/i9FRST87K_c/default.jpg"
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/i9FRST87K_c/mqdefault.jpg"
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/i9FRST87K_c/hqdefault.jpg"
+          }
+        },
+        "channelTitle": "ShadowofCatron",
+        "liveBroadcastContent": "none"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "\"9Y5jTkxN1JET3y-M4wKMA5aK7Mk/A6CGW8VI18dUwRonXQVyLjlAck4\"",
+      "id": {
+        "kind": "youtube#playlist",
+        "playlistId": "PLkm0HTZslJY1-_8Jc-xenbIqQ2ZpCiDUe"
+      },
+      "snippet": {
+        "publishedAt": "2012-09-19T04:00:13.000Z",
+        "channelId": "UCmUGtfkU-Za0hhIwkvMXG3w",
+        "title": "Scala Tutorial",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/i9FRST87K_c/default.jpg"
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/i9FRST87K_c/mqdefault.jpg"
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/i9FRST87K_c/hqdefault.jpg"
+          }
+        },
+        "channelTitle": "simgamboa",
+        "liveBroadcastContent": "none"
+      }
+    }
+  ]
+}
