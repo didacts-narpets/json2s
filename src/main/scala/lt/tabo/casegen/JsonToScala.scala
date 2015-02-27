@@ -13,17 +13,24 @@ import scala.util.matching.Regex
 
 object JsonToScala {
 
-  def classFor(value: JValue, paramName: String, parent: ClassSymbol=RootClass): Type = value match {
-    case s: JString => StringClass
-    case i: JInt => IntClass
-    case d: JDouble => DoubleClass
-    case o: JObject => generateClassFromJObject(o, toUpperCamel(paramName), parent).tpe
-    case a: JArray => ArrayClass TYPE_OF classFor(a.arr.head, paramName, parent)
+  def classFor(value: JValue, paramName: String): (Seq[Tree], Type) = value match {
+    case s: JString => (Nil, StringClass)
+    case i: JInt => (Nil, IntClass)
+    case d: JDouble => (Nil, DoubleClass)
+    case o: JObject =>
+      val (tree, tpe) = generateClassFromJObject(o, toUpperCamel(paramName))
+      (List(tree), tpe)
+    case a: JArray =>
+      val (trees, arrType) = classFor(a.arr.head, paramName)
+      (trees, ArrayClass TYPE_OF arrType)
     // TODO: generateClassFromJArray(a, toUpperCamel(paramName)).tpe
     case x => throw new Error("Don't know how to handle " + x)
   }
 
-  def generateClassFromJArray(json: JArray, className: String): Tree = {
+  def generateClassFromJArray(json: JArray, className: String): (Tree, Type) = {
+    // TODO: if it is array of JObects,
+    // assume they are all of the same type -
+    // then, resolve missing values with Options
     ???
   }
 
@@ -35,14 +42,22 @@ object JsonToScala {
     })
   }
 
-  def generateClassFromJObject(json: JObject, className: String, parent: ClassSymbol=RootClass): Tree = {
-    val TopCaseClass = parent.newClass(className)
+  def generateClassFromJObject(json: JObject, className: String): (Tree, Type) = {
+    val TopCaseClass = RootClass.newClass(className)
 
-    val params: Iterable[ValDef] = for ((name, value) <- json.obj.toIterable) yield {
-      PARAM(name, classFor(value, name, TopCaseClass)).empty
+    // TODO: refactor for readability
+    val (moreClasses: Seq[Tree], params: Seq[ValDef]) = ((Seq[Tree](),Seq[ValDef]()) /: json.obj.toList) {
+      case ((treesSoFar, valsSoFar), (name: String, value)) =>
+        val (classDefs: Seq[Tree],thisClass: Type) = classFor(value, name)
+      (treesSoFar ++ classDefs, valsSoFar :+ PARAM(name, thisClass).empty)
     }
 
-    CASECLASSDEF(TopCaseClass).withParams(params)
+    val newClass: Tree = CASECLASSDEF(TopCaseClass).withParams(params.toIterable)
+    val codeBlock = BLOCK {
+      (moreClasses :+ newClass).toIterable
+    }.withoutPackage
+
+    (codeBlock, TopCaseClass.tpe)
   }
 
   def demo() = {
@@ -52,7 +67,7 @@ object JsonToScala {
       case x => throw new Error("Expected JObject, got " + x)
     }
 
-    val genClass = generateClassFromJObject(jObject, "YouTubeResponse")
+    val (genClass,_) = generateClassFromJObject(jObject, "YouTubeResponse")
     println(genClass)
     println(treeToString(genClass))
   }
