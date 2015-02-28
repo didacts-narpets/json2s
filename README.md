@@ -56,24 +56,24 @@ can be quickly wrapped in awesome scala code.
 ```scala
 scala> import lt.tabo.casegen.JsonToScala
 scala> JsonToScala("""
-     |          { "name": "joe",
-     |            "address": {
-     |              "street": "Bulevard",
-     |              "city": "Helsinki"
-     |            },
-     |            "children": [
-     |              {
-     |                "name": "Mary",
-     |                "age": 5,
-     |                "birthdate": "2004-09-04T18:06:22Z"
-     |              },
-     |              {
-     |                "name": "Mazy",
-     |                "age": 3
-     |              }
-     |            ]
-     |          }
-     |        """, "Person")
+          { "name": "joe",
+            "address": {
+              "street": "Bulevard",
+              "city": "Helsinki"
+            },
+            "children": [
+              {
+                "name": "Mary",
+                "age": 5,
+                "birthdate": "2004-09-04T18:06:22Z"
+              },
+              {
+                "name": "Mazy",
+                "age": 3
+              }
+            ]
+          }
+        """, "Person")
 res0: String =
 case class Address(street: String, city: String)
 
