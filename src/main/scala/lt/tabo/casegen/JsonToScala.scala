@@ -28,12 +28,12 @@ object JsonToScala {
     def primitive(t: Type) = (Nil: Seq[Tree], t)
     val (trees: Seq[Tree], arrType: Type) =
       if (arr.isEmpty) primitive(NothingClass)
-      else if (arr.forall(_.isInstanceOf[String])) primitive(StringClass)
-      else if (arr.forall(_.isInstanceOf[Int])) primitive(IntClass)
-      else if (arr.forall(_.isInstanceOf[Double])) primitive(DoubleClass)
-      else if (arr.forall(_.isInstanceOf[Object]))
+      else if (arr.forall(_.isInstanceOf[JString])) primitive(StringClass)
+      else if (arr.forall(_.isInstanceOf[JInt])) primitive(IntClass)
+      else if (arr.forall(_.isInstanceOf[JDouble])) primitive(DoubleClass)
+      else if (arr.forall(_.isInstanceOf[JObject]))
         generateClassFromJObjects(arr.map(_.asInstanceOf[JObject]), toUpperCamel(paramName))
-      else if (arr.forall(_.isInstanceOf[Array]))
+      else if (arr.forall(_.isInstanceOf[JArray]))
         // not safe - assume all arrays are of the same type, just use the first one
         classForJArray(arr.head.asInstanceOf[JArray], paramName)
       else throw new Error("Array types are not all the same in " + json)
