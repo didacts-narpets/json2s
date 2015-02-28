@@ -10,7 +10,7 @@ Many scala Json libraries allow for json => case class conversion like so:
 
 ```scala
 scala> import org.json4s._
-scala> import import org.json4s.native.JsonParser.parse
+scala> import org.json4s.native.JsonParser.parse
 scala> implicit val formats = DefaultFormats // Brings in default date formats etc.
 scala> case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
 scala> case class Address(street: String, city: String)
