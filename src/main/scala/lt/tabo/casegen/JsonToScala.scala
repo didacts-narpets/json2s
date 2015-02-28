@@ -22,7 +22,7 @@ object JsonToScala {
       (List(tree), tpe)
     case a: JArray =>
       val (trees, arrType) = classFor(a.arr.head, paramName)
-      (trees, ArrayClass TYPE_OF arrType)
+      (trees, ListClass TYPE_OF arrType)
     // TODO: generateClassFromJArray(a, toUpperCamel(paramName)).tpe
     case x => throw new Error("Don't know how to handle " + x)
   }
@@ -44,12 +44,10 @@ object JsonToScala {
 
   def generateClassFromJObject(json: JObject, className: String): (Tree, Type) = {
     val TopCaseClass = RootClass.newClass(className)
-    println("TopCaseClass="+TopCaseClass+"="+treeToString(TopCaseClass))
     // TODO: refactor for readability
     val (moreClasses: Seq[Tree], params: Seq[ValDef]) = ((Seq[Tree](),Seq[ValDef]()) /: json.obj.toList) {
       case ((treesSoFar, valsSoFar), (name: String, value)) =>
         val (classDefs: Seq[Tree],thisClass: Type) = classFor(value, name)
-        println("thisClass="+thisClass+"="+treeToString(thisClass))
       (treesSoFar ++ classDefs, valsSoFar :+ PARAM(name, thisClass).empty)
     }
 
@@ -59,6 +57,16 @@ object JsonToScala {
     }.withoutPackage
 
     (codeBlock, className)
+  }
+
+  def apply(json: JValue, className: String): String = {
+    treeToString(BLOCK {
+      classFor(json, className)._1.head
+    }.withoutPackage)
+  }
+
+  def apply(json: String, className: String): String = {
+    apply(JsonParser.parse(json), className)
   }
 
   def demo() = {
