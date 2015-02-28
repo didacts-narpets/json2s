@@ -44,11 +44,12 @@ object JsonToScala {
 
   def generateClassFromJObject(json: JObject, className: String): (Tree, Type) = {
     val TopCaseClass = RootClass.newClass(className)
-
+    println("TopCaseClass="+TopCaseClass+"="+treeToString(TopCaseClass))
     // TODO: refactor for readability
     val (moreClasses: Seq[Tree], params: Seq[ValDef]) = ((Seq[Tree](),Seq[ValDef]()) /: json.obj.toList) {
       case ((treesSoFar, valsSoFar), (name: String, value)) =>
         val (classDefs: Seq[Tree],thisClass: Type) = classFor(value, name)
+        println("thisClass="+thisClass+"="+treeToString(thisClass))
       (treesSoFar ++ classDefs, valsSoFar :+ PARAM(name, thisClass).empty)
     }
 
@@ -57,7 +58,7 @@ object JsonToScala {
       (moreClasses :+ newClass).toIterable
     }.withoutPackage
 
-    (codeBlock, TopCaseClass.tpe)
+    (codeBlock, className)
   }
 
   def demo() = {
