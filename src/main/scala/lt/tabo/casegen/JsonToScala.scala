@@ -2,19 +2,20 @@ package lt.tabo.casegen
 
 import java.io.InputStreamReader
 
-import org.json4s.JString
 import org.json4s.JsonAST._
 import org.json4s.native.JsonParser
 import treehugger.forest._
 import treehugger.forest.definitions._
 import treehugger.forest.treehuggerDSL._
-
+import org.json4s.DefaultFormats
 import scala.util.matching.Regex
 
 object JsonToScala {
 
   def classFor(value: JValue, paramName: String): (Seq[Tree], Type) = value match {
-    case s: JString => (Nil, StringClass)
+    case JString(s) =>
+      if (canBeDate(s)) (Nil, "java.util.Date")
+      else (Nil, StringClass)
     case i: JInt => (Nil, IntClass)
     case d: JDouble => (Nil, DoubleClass)
     case o: JObject => generateClassFromJObject(o, toUpperCamel(paramName))
@@ -23,14 +24,19 @@ object JsonToScala {
     case x => throw new Error("Don't know how to handle " + x)
   }
 
+  def canBeDate(str: String) = DefaultFormats.dateFormat.parse(str).isDefined
+
   def classForJArray(json: JArray, paramName: String): (Seq[Tree], Type) = {
     val arr = json.arr
-    def primitive(t: Type) = (Nil: Seq[Tree], t)
+    def terminal(t: Type) = (Nil: Seq[Tree], t)
     val (trees: Seq[Tree], arrType: Type) =
-      if (arr.isEmpty) primitive(NothingClass)
-      else if (arr.forall(_.isInstanceOf[JString])) primitive(StringClass)
-      else if (arr.forall(_.isInstanceOf[JInt])) primitive(IntClass)
-      else if (arr.forall(_.isInstanceOf[JDouble])) primitive(DoubleClass)
+      if (arr.isEmpty) terminal(NothingClass)
+      else if (arr.forall(_.isInstanceOf[JString])) {
+        if (arr.forall(js => canBeDate(js.asInstanceOf[JString].s))) terminal("java.util.Date")
+        else terminal(StringClass)
+      }
+      else if (arr.forall(_.isInstanceOf[JInt])) terminal(IntClass)
+      else if (arr.forall(_.isInstanceOf[JDouble])) terminal(DoubleClass)
       else if (arr.forall(_.isInstanceOf[JObject]))
         generateClassFromJObjects(arr.map(_.asInstanceOf[JObject]), toUpperCamel(paramName))
       else if (arr.forall(_.isInstanceOf[JArray]))
@@ -107,19 +113,21 @@ object JsonToScala {
     generateClassFromJObjects(List(json), className)
   }
 
+  def treesToString(trees: Iterable[Tree]) = {
+    treeToString(BLOCK(trees).withoutPackage)
+  }
+
   def apply(json: JValue, className: String): String = {
-    treeToString(BLOCK {
-      classFor(json, className)._1.toIterable
-    })
+    treesToString(classFor(json, className)._1)
   }
 
   def apply(jsons: Seq[String], className: String): String = {
-    treeToString(BLOCK {
+    treesToString {
       generateClassFromJObjects(jsons.toList.map(JsonParser.parse(_) match {
         case obj: JObject => obj
         case x => throw new IllegalArgumentException("Expected JObject, got " + x)
-      }), className)._1.toIterable
-    })
+      }), className)._1
+    }
   }
 
   def apply(json: String, className: String): String = {
@@ -133,9 +141,7 @@ object JsonToScala {
       case x => throw new Error("Expected JObject, got " + x)
     }
 
-    val (genClass,_) = generateClassFromJObject(jObject, "YouTubeResponse")
-    // println(genClass)
-    println(treeToString(BLOCK(genClass)))
+    println(apply(jObject, "YouTubeResponse"))
   }
 
   def main(args: Array[String]) = demo()
