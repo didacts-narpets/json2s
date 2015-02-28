@@ -1,4 +1,4 @@
-s## case-class-gen
+## case-class-gen
 
 This project will contain code to generate case classes from an example
 json object. Extensions may possibly include xml or similar other input types.
@@ -76,9 +76,7 @@ scala> JsonToScala("""
         """, "Person")
 res0: String =
 case class Address(street: String, city: String)
-
-case class Children(name: String, age: Int, birthdate: String)
-
+case class Children(age: Int, name: String, birthdate: Option[String])
 case class Person(name: String, address: Address, children: List[Children])
 ```
 
@@ -87,7 +85,13 @@ Right now it directly converts json types to the scala classes,
 so that limits types to `String`, `Double`, `Int`, `Object`, and `Array`.
 
 For now, Strings, Doubles, and Ints are handled directly, Arrays are made into
-Lists and typed by their first element, and Objects are well... converted to
-case classes. As shown in the above example in the case of `birthdate`, it
-misses out on choosing more appropriate types like `Option[java.util.Date]`
-and instead assumes it is just a `String`.
+Lists and typed by "merging" the elements if they are objects, or just
+verifyinig that they are all the same type if they are not,
+and Objects are well... converted to case classes.
+
+### TODO
+ - handle stuff like `java.util.Date`
+ - convert array names to singular class names (eg `children: List[Child]`)
+ - handle names with invalid scala characters by putting them in backticks
+ - add documentation, tests
+ - make web interface for people to use
