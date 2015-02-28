@@ -1,4 +1,4 @@
-## case-class-gen
+s## case-class-gen
 
 This project will contain code to generate case classes from an example
 json object. Extensions may possibly include xml or similar other input types.
@@ -10,7 +10,7 @@ Many scala Json libraries allow for json => case class conversion like so:
 
 ```scala
 scala> import org.json4s._
-scala> import org.json4s.jackson.JsonMethods._
+scala> import import org.json4s.native.JsonParser.parse
 scala> implicit val formats = DefaultFormats // Brings in default date formats etc.
 scala> case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
 scala> case class Address(street: String, city: String)
@@ -51,3 +51,43 @@ the `extract` will fail.
 This project will attempt to automatically create the case classes for you so
 that, in combination with `extract`, any json API that provides example output
 can be quickly wrapped in awesome scala code.
+
+### Example basic functionality
+```scala
+scala> import lt.tabo.casegen.JsonToScala
+scala> JsonToScala("""
+     |          { "name": "joe",
+     |            "address": {
+     |              "street": "Bulevard",
+     |              "city": "Helsinki"
+     |            },
+     |            "children": [
+     |              {
+     |                "name": "Mary",
+     |                "age": 5,
+     |                "birthdate": "2004-09-04T18:06:22Z"
+     |              },
+     |              {
+     |                "name": "Mazy",
+     |                "age": 3
+     |              }
+     |            ]
+     |          }
+     |        """, "Person")
+res0: String =
+case class Address(street: String, city: String)
+
+case class Children(name: String, age: Int, birthdate: String)
+
+case class Person(name: String, address: Address, children: List[Children])
+```
+
+There are some limitations as of right now.
+Right now it directly converts json types to the scala classes,
+so that limits types to `String`, `Double`, `Int`, `Object`, and `Array`.
+
+For now, Strings, Doubles, and Ints are handled directly, Arrays are made into
+Lists and typed by their first element, and Objects are well... converted to
+case classes. As shown in the above example in the case of `birthdate`, it
+misses out on choosing more appropriate types like `Option[java.util.Date]`
+and instead assumes it is just a `String`.
