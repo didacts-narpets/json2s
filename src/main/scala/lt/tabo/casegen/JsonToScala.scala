@@ -40,6 +40,14 @@ object JsonToScala {
     (trees, TYPE_LIST(arrType))
   }
 
+  /** adds backticks for names with characters like spaces etc
+    * note that treehugger already adds backticks for scala keywords (like `type` or `val`)
+    */
+  def quotedName(name: String) = {
+    if (name.matches("[a-zA-Z_][\\w\\d_]*")) name
+    else '`' + name + '`'
+  }
+
   def toUpperCamel(str: String) = {
     val WordStart = "(^|[-_ \\.]+)(\\w)".r
     WordStart.replaceAllIn(str, _ match {
@@ -89,7 +97,7 @@ object JsonToScala {
 
     val newClass: Tree = CASECLASSDEF(TopCaseClass).withParams(params.toIterable.map {
       case (name, classType, optional) =>
-        PARAM(name, if (optional) TYPE_OPTION(classType) else classType).empty
+        PARAM(quotedName(name), if (optional) TYPE_OPTION(classType) else classType).empty
     })
 
     ((moreClasses :+ newClass).toSeq, className)
