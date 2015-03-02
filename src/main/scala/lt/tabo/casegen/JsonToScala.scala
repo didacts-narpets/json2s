@@ -9,9 +9,9 @@ import treehugger.forest.definitions._
 import treehugger.forest.treehuggerDSL._
 import org.json4s.DefaultFormats
 import scala.util.matching.Regex
+import lt.tabo.casegen.Utils.{canBeDate, toUpperCamel, toSingular}
 
 object JsonToScala {
-
   def classFor(value: JValue, paramName: String): (Seq[Tree], Type) = value match {
     case JString(s) =>
       if (canBeDate(s)) (Nil, "java.util.Date")
@@ -20,11 +20,8 @@ object JsonToScala {
     case d: JDouble => (Nil, DoubleClass)
     case o: JObject => generateClassFromJObject(o, toUpperCamel(paramName))
     case a: JArray => classForJArray(a, paramName)
-    // TODO: generateClassFromJArray(a, toUpperCamel(paramName)).tpe
     case x => throw new Error("Don't know how to handle " + x)
   }
-
-  def canBeDate(str: String) = DefaultFormats.dateFormat.parse(str).isDefined
 
   def classForJArray(json: JArray, paramName: String): (Seq[Tree], Type) = {
     val arr = json.arr
@@ -38,28 +35,12 @@ object JsonToScala {
       else if (arr.forall(_.isInstanceOf[JInt])) terminal(IntClass)
       else if (arr.forall(_.isInstanceOf[JDouble])) terminal(DoubleClass)
       else if (arr.forall(_.isInstanceOf[JObject]))
-        generateClassFromJObjects(arr.map(_.asInstanceOf[JObject]), toUpperCamel(paramName))
+        generateClassFromJObjects(arr.map(_.asInstanceOf[JObject]), toUpperCamel(toSingular(paramName)))
       else if (arr.forall(_.isInstanceOf[JArray]))
         // not safe - assume all arrays are of the same type, just use the first one
         classForJArray(arr.head.asInstanceOf[JArray], paramName)
       else throw new Error("Array types are not all the same in " + json)
     (trees, TYPE_LIST(arrType))
-  }
-
-  /** adds backticks for names with characters like spaces etc
-    * note that treehugger already adds backticks for scala keywords (like `type` or `val`)
-    */
-  def quotedName(name: String) = {
-    if (name.matches("[a-zA-Z_][\\w\\d_]*")) name
-    else '`' + name + '`'
-  }
-
-  def toUpperCamel(str: String) = {
-    val WordStart = "(^|[-_ \\.]+)(\\w)".r
-    WordStart.replaceAllIn(str, _ match {
-      case Regex.Groups(wordBreak, firstChar) =>
-        firstChar.toUpperCase // discard break and upper first char
-    })
   }
 
   def getParamsForJObject(json: JObject): (Seq[Tree], Seq[(String, Type)]) = {
