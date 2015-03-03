@@ -76,22 +76,15 @@ scala> JsonToScala("""
         """, "Person")
 res0: String =
 case class Address(street: String, city: String)
-case class Children(age: Int, name: String, birthdate: Option[String])
-case class Person(name: String, address: Address, children: List[Children])
+case class Child(age: Int, name: String, birthdate: Option[java.util.Date])
+case class Person(name: String, address: Address, children: List[Child])
 ```
 
-There are some limitations as of right now.
-Right now it directly converts json types to the scala classes,
-so that limits types to `String`, `Double`, `Int`, `Object`, and `Array`.
-
-For now, Strings, Doubles, and Ints are handled directly, Arrays are made into
-Lists and typed by "merging" the elements if they are objects, or just
-verifyinig that they are all the same type if they are not,
-and Objects are well... converted to case classes.
-
-### TODO
- - handle stuff like `java.util.Date`
+### Features
+ - handles `java.util.Date`, more to come possibly?
  - convert array names to singular class names (eg `children: List[Child]`)
  - handle names with invalid scala characters by putting them in backticks
+
+### TODO
  - add documentation, tests
  - make web interface for people to use
