@@ -1,4 +1,4 @@
-## case-class-gen
+## json2s
 
 This project will contain code to generate case classes from an example
 json object. Extensions may possibly include xml or similar other input types.
@@ -54,7 +54,7 @@ can be quickly wrapped in awesome scala code.
 
 ### Example basic functionality
 ```scala
-scala> import lt.tabo.casegen.JsonToScala
+scala> import lt.tabo.json2s.JsonToScala
 scala> JsonToScala("""
           { "name": "joe",
             "address": {
