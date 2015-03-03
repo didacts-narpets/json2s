@@ -1,6 +1,6 @@
 organization := "lt.tabo"
 
-name := "case-class-gen"
+name := "json2s"
 
 version := "0.0.1-SNAPSHOT"
 

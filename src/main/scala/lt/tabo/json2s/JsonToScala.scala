@@ -1,4 +1,4 @@
-package lt.tabo.casegen
+package lt.tabo.json2s
 
 import java.io.InputStreamReader
 
@@ -9,7 +9,7 @@ import treehugger.forest.definitions._
 import treehugger.forest.treehuggerDSL._
 import org.json4s.DefaultFormats
 import scala.util.matching.Regex
-import lt.tabo.casegen.Utils.{canBeDate, toUpperCamel, toSingular}
+import lt.tabo.json2s.Utils.{canBeDate, toUpperCamel, toSingular}
 
 object JsonToScala {
   def classFor(value: JValue, paramName: String): (Seq[Tree], Type) = value match {

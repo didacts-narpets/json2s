@@ -1,4 +1,4 @@
-package lt.tabo.casegen
+package lt.tabo.json2s
 
 import org.scalatest.{Matchers, FlatSpec}
 
