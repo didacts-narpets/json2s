@@ -61,11 +61,8 @@ object JsonToScala {
       }
     val (moreClasses, params) = objectParams.reduce((x,y) => (x,y) match {
       case ((someClasses1, someParams1), (someClasses2, someParams2)) =>
-        def xor[A](xs: Seq[A], ys: Seq[A]) = {
-          println("xor(" + xs + ", " + ys + ")")
-          xs.diff(ys) ++ ys.diff(xs)
-        }
         // someClasses1 union someClasses2 - hack since .equals is not the same as the treeToString
+        // TODO: a recursive merge
         val mergeClasses = (someClasses1 ++ someClasses2).groupBy(treeToString(_)).map(_._2.head)
         // the boolean means "optional"
         val (optParams1, reqPs1) = someParams1.partition(_._3)

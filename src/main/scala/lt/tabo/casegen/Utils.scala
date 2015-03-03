@@ -59,11 +59,11 @@ object Utils {
             if (lastWord.head.isUpper) specialCase.head.toUpper + specialCase.tail
             else specialCase
           case None =>
-            word match {
+            lastWord match {
               case EndsWithIes(base) => base + "y"
               case EndsWithEs(base)  => base
               case EndsWithS(base)   => base
-              case _ => word
+              case _ => lastWord
             }
         }
         init + singularLastWord
