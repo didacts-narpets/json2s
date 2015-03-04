@@ -3,13 +3,21 @@ package lt.tabo.json2s
 import java.io.InputStreamReader
 
 import org.json4s.JsonAST._
-import org.json4s.native.JsonParser
+import org.json4s.native._
 import treehugger.forest._
 import treehugger.forest.definitions._
 import treehugger.forest.treehuggerDSL._
 import org.json4s.DefaultFormats
 import scala.util.matching.Regex
 import lt.tabo.json2s.Utils.{canBeDate, toUpperCamel, toSingular}
+
+case class JsonToScala(json: JValue, className: String) {
+  def asJson = prettyJson(renderJValue(json))
+  def asScala = {
+    import JsonToScala._
+    treesToString(classFor(json, className)._1)
+  }
+}
 
 object JsonToScala {
   def classFor(value: JValue, paramName: String): (Seq[Tree], Type) = value match {
@@ -95,11 +103,7 @@ object JsonToScala {
     treeToString(BLOCK(trees).withoutPackage)
   }
 
-  def apply(json: JValue, className: String): String = {
-    treesToString(classFor(json, className)._1)
-  }
-
-  def apply(jsons: Seq[String], className: String): String = {
+  def classForExamples(jsons: Seq[String], className: String): String = {
     treesToString {
       generateClassFromJObjects(jsons.toList.map(JsonParser.parse(_) match {
         case obj: JObject => obj
@@ -108,7 +112,7 @@ object JsonToScala {
     }
   }
 
-  def apply(json: String, className: String): String = {
+  def apply(json: String, className: String): JsonToScala = {
     apply(JsonParser.parse(json), className)
   }
 
