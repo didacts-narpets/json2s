@@ -1,15 +1,21 @@
 organization := "lt.tabo"
 
-name := "json2s"
+name := "json2s-web"
 
-version := "0.0.1-SNAPSHOT"
+version := "0.1.0-SNAPSHOT"
 
-scalaVersion := "2.11.5"
+lazy val core = project in file("core")
+
+lazy val root = (project in file(".")).enablePlugins(PlayScala).dependsOn(core)
+
+scalaVersion := "2.11.1"
 
 libraryDependencies ++= Seq(
-  "com.eed3si9n" %% "treehugger" % "0.3.0",
-  "org.json4s" %% "json4s-native" % "3.2.10",
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+  jdbc,
+  anorm,
+  cache,
+  ws
 )
 
-resolvers += Resolver.sonatypeRepo("public")
+
+fork in run := true
