@@ -12,7 +12,7 @@ dist
 /.project
 /RUNNING_PID
 /.settings
-/.sbtserver
+.sbtserver*
 /activator
 /activator-launch-*.jar
 /activator.bat

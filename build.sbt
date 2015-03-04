@@ -8,7 +8,7 @@ lazy val core = project in file("core")
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala).dependsOn(core)
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.5"
 
 libraryDependencies ++= Seq(
   jdbc,
