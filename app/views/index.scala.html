@@ -1,18 +1,7 @@
 @import lt.tabo.json2s.JsonToScala
 @(jsonForm: Form[JsonToScala])
 
-@import helper._
-@import helper.twitterBootstrap._
-
 @main("json2s") {
     <h3><b>Welcome</b> to <i>json2s</i>!</h3>
-    @form(action = routes.Application.submit) {
-        @inputText(jsonForm("class-name"))
-        <div class="form-group">
-            <label for="json-input">Enter json:</label>
-            <textarea class="form-control" rows="10" id="json-input" name="json-input"></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-default">Go!</button>
-    }
+    @jsonform(jsonForm)
 }

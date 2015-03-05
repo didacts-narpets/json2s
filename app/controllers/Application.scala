@@ -8,6 +8,25 @@ import play.api.data.Forms.{mapping, text}
 import play.api.mvc._
 
 object Application extends Controller {
+  val ExampleClassName = "Person"
+  val ExampleJson = """{ "name": "joe",
+                      |  "address": {
+                      |    "street": "Bulevard",
+                      |    "city": "Helsinki"
+                      |  },
+                      |  "children": [
+                      |    {
+                      |      "name": "Mary",
+                      |      "age": 5,
+                      |      "birthdate": "2004-09-04T18:06:22Z"
+                      |    },
+                      |    {
+                      |      "name": "Mazy",
+                      |      "age": 3
+                      |    }
+                      |  ]
+                      |}""".stripMargin
+
 
   def index = Action {
     Ok(views.html.index(jsonForm))
@@ -24,11 +43,11 @@ object Application extends Controller {
       "json-input" -> json,
       "class-name" -> text
     )(JsonToScala(_,_))(JsonToScala.unapply)
-  )
+  ).fill(JsonToScala(ExampleJson, ExampleClassName))
 
   def submit = Action { implicit request =>
     jsonForm.bindFromRequest.value.map { j2s =>
-      Ok(views.html.submitted(j2s))
+      Ok(views.html.submitted(j2s, jsonForm))
     }.getOrElse(BadRequest)
   }
 }
