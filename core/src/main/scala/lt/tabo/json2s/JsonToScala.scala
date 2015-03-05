@@ -89,7 +89,7 @@ object JsonToScala {
 
     val newClass: Tree = CASECLASSDEF(TopCaseClass).withParams(params.toIterable.map {
       case (name, classType, optional) =>
-        PARAM(quotedName(name), if (optional) TYPE_OPTION(classType) else classType).empty
+        PARAM(Utils.quotedName(name), if (optional) TYPE_OPTION(classType) else classType).empty
     })
 
     ((moreClasses :+ newClass).toSeq, className)
