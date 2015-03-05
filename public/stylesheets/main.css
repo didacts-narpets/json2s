@@ -11,12 +11,12 @@
 //For use with Google Code Prettify, HTML Syntax only
 //======================== */
 
-pre .str, code .str { color: #e6db5a; } /* string */
-pre .kwd, code .kwd { color: #66d9ef; } /* keyword */
+pre .str, code .str { color: #82CDB9; } /* string */
+pre .kwd, code .kwd { color: #FF3D73; } /* keyword */
 pre .com, code .com { color: #75715e; font-style: italic; } /* comment */
-pre .typ, code .typ { color: #66d9ef; } /* type */
-pre .lit, code .lit { color: #ae81ff; } /* literal */
-pre .pun, code .pun { color: #fff; } /* punctuation */
+pre .typ, code .typ { color: #00B9D7; } /* type */
+pre .lit, code .lit { color: #F37259; } /* literal */
+pre .pun, code .pun { color: #FDF5A9; } /* punctuation */
 pre .pln, code .pln { color: #fff; } /* plaintext */
 pre .tag, code .tag { color: #f92672; } /* html/xml tag */
 pre .atn, code .atn { color: #a6e22a; } /* html/xml attribute name */
