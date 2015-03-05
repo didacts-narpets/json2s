@@ -1,5 +1,5 @@
-#json-input {
-  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+#json-input, .prettyprinted {
+  font-family: Menlo,Monaco,Consolas,monospace;
 }
 /* ========================
 //#google-prettify-monokai-theme
