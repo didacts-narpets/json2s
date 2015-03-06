@@ -26,6 +26,7 @@ object JsonToScala {
       else (Nil, StringClass)
     case i: JInt => (Nil, IntClass)
     case d: JDouble => (Nil, DoubleClass)
+    case b: JBool => (Nil, BooleanClass)
     case o: JObject => generateClassFromJObject(o, toUpperCamel(paramName))
     case a: JArray => classForJArray(a, paramName)
     case x => throw new Error("Don't know how to handle " + x)
@@ -42,6 +43,7 @@ object JsonToScala {
       }
       else if (arr.forall(_.isInstanceOf[JInt])) terminal(IntClass)
       else if (arr.forall(_.isInstanceOf[JDouble])) terminal(DoubleClass)
+      else if (arr.forall(_.isInstanceOf[JBool])) terminal(BooleanClass)
       else if (arr.forall(_.isInstanceOf[JObject]))
         generateClassFromJObjects(arr.map(_.asInstanceOf[JObject]), toUpperCamel(toSingular(paramName)))
       else if (arr.forall(_.isInstanceOf[JArray]))
