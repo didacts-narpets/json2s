@@ -51,31 +51,29 @@ object JsonToScala {
     (trees, ListClass(arrType))
   }
 
-  def getParamsForJObject(json: JObject): (Seq[CaseClassStub], Seq[(String, ClassType)]) = {
-    val (moreClasses: Seq[CaseClassStub], params: Seq[(String,ClassType)]) = ((Seq[CaseClassStub](),Seq[(String,ClassType)]()) /: json.obj.toList) {
-      case ((treesSoFar, valsSoFar), (name: String, value)) =>
-        val (classDefs: Seq[CaseClassStub],thisClass: ClassType) = classFor(value, name)
-        (treesSoFar ++ classDefs, valsSoFar :+ (name, thisClass))
+  def getParamsForJObject(json: JObject): (Seq[CaseClassStub], Seq[BasicParam]) = {
+    val (moreClasses: Seq[CaseClassStub], params: Seq[BasicParam]) = ((Seq[CaseClassStub](),Seq[BasicParam]()) /: json.obj.toList) {
+      case ((treesSoFar, valsSoFar), (paramName: String, paramValue)) =>
+        val (classDefs: Seq[CaseClassStub],paramClass: ClassType) = classFor(paramValue, paramName)
+        (treesSoFar ++ classDefs, valsSoFar :+ BasicParam(paramName, paramClass))
     }
     (moreClasses, params)
   }
 
   def generateClassFromJObjects(jsons: List[JObject], className: String): (Seq[CaseClassStub], ClassType) = {
-    val objectParams: List[(Seq[CaseClassStub], Seq[(String, ClassType, Boolean)])] =
-      jsons.map(getParamsForJObject).map { case (trees, ps) =>
-        (trees, ps.map { case (name, classType) => (name, classType, false) })
-      }
+    val objectParams: List[(Seq[CaseClassStub], Seq[BasicParam])] =
+      jsons.map(getParamsForJObject)
     val (moreClasses, params) = objectParams.reduce((x,y) => (x,y) match {
       case ((someClasses1, someParams1), (someClasses2, someParams2)) =>
         // TODO: a recursive merge - eg resolving nested differences with options
-        val mergeClasses = (someClasses1 union someClasses2)
+        val mergeClasses = (someClasses1 ++ someClasses2).groupBy(_.name).map(_._2.head).toSeq
         // the boolean means "optional"
-        val (optParams1, reqPs1) = someParams1.partition(_._3)
-        val (optParams2, reqPs2) = someParams2.partition(_._3)
-        val mergeOpts = (optParams1 ++ optParams2).groupBy(_._1).mapValues(_.head).toList
+        val (optParams1, reqPs1) = someParams1.partition(_.tpe.name == "Option")
+        val (optParams2, reqPs2) = someParams2.partition(_.tpe.name == "Option")
+        val mergeOpts = (optParams1 ++ optParams2).groupBy(_.name).mapValues(_.head).toList
         val mergeReqs = {
-          (reqPs1 ++ reqPs2).groupBy(_._1).mapValues {
-            case Seq(one) => one.copy(_3 = true)
+          (reqPs1 ++ reqPs2).groupBy(_.name).mapValues {
+            case Seq(one) => one.copy(tpe=OptionClass(one.tpe))
             case Seq(one, two) => one
             case xs => xs.head
           }
@@ -84,10 +82,7 @@ object JsonToScala {
         (mergeClasses, mergeParams.map(_._2))
     })
 
-    val newClass: CaseClassStub = CaseClassStub(className, params.map {
-      case (name, classType, optional) =>
-        BasicParam(name, if (optional) OptionClass(classType) else classType)
-    })
+    val newClass: CaseClassStub = CaseClassStub(className, params)
 
     ((moreClasses :+ newClass).toSeq, ClassType(className))
   }
