@@ -44,7 +44,7 @@ object JsonToScala {
       else if (arr.forall(_.isInstanceOf[JDouble])) terminal(DoubleClass)
       else if (arr.forall(_.isInstanceOf[JBool])) terminal(BooleanClass)
       else if (arr.forall(_.isInstanceOf[JObject]))
-        generateClassFromJObjects(arr.map(_.asInstanceOf[JObject]), toUpperCamel(toSingular(paramName)))
+        generateClassFromJObjects(arr.map(_.asInstanceOf[JObject]), toSingular(toUpperCamel(paramName)))
       else if (arr.forall(_.isInstanceOf[JArray]))
         // not safe - assume all arrays are of the same type, just use the first one
         classForJArray(arr.head.asInstanceOf[JArray], paramName)
