@@ -1,7 +1,14 @@
 ## json2s
 
-This project will contain code to generate case classes from an example
-json object. Extensions may possibly include xml or similar other input types.
+Generate scala case classes from an example json object or an array of several
+example objects. Extensions may possibly include xml or similar other input types.
+
+The root of the project contains a [play](https://github.com/playframework/playframework)
+web app to demo the functionality but the actual
+implementation can be found in the "core" module
+(it is pretty small).
+
+The app can be viewed at http://json2s.tabo.lt
 
 ### Motivation
 
@@ -87,4 +94,3 @@ case class Person(name: String, address: Address, children: List[Child])
 
 ### TODO
  - add documentation, tests
- - make web interface for people to use
