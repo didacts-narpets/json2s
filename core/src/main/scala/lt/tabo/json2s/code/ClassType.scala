@@ -17,6 +17,7 @@ object ClassType {
   val BooleanClass = ClassType("Boolean")
   val LongClass = ClassType("Long")
   val NothingClass = ClassType("Nothing")
+  val AnyClass = ClassType("Any")
   val DateClass = ClassType("java.util.Date")
   def ArrayClass(typeParam1: ClassType) = ClassType("Array", Seq(typeParam1))
   def SeqClass(typeParam1: ClassType) = ClassType("Seq", Seq(typeParam1))

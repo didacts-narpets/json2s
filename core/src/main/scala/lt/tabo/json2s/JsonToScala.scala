@@ -27,6 +27,7 @@ object JsonToScala {
     case b: JBool => (Nil, BooleanClass)
     case o: JObject => generateClassFromJObject(o, toUpperCamel(paramName))
     case a: JArray => classForJArray(a, paramName)
+    case JNull => (Nil, AnyClass)
     case x => throw new Error("Don't know how to handle " + x)
   }
 
