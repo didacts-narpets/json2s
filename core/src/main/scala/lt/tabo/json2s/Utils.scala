@@ -5,16 +5,22 @@ import org.json4s.DefaultFormats
 import scala.util.matching.Regex
 
 /**
- * Created by iantabolt on 2/28/15.
+ * @author iantabolt
+ * @since 2/28/15
  */
 object Utils {
   def canBeDate(str: String) = DefaultFormats.dateFormat.parse(str).isDefined
 
+  val ScalaKeywords =
+    Set("type", "val", "def", "else", "if", "object",
+      "yield", "for", "import", "match", "case", "yield",
+      "var", "class", "package", "extends")
+
   /** adds backticks for names with characters like spaces etc
-    * note that treehugger already adds backticks for scala keywords (like `type` or `val`)
     */
   def quotedName(name: String) = {
-    if (name.matches("[a-zA-Z_][\\w\\d_]*")) name
+    if (ScalaKeywords(name)) '`' + name + '`'
+    else if (name.matches("[a-zA-Z_][\\w\\d_]*")) name
     else '`' + name + '`'
   }
 

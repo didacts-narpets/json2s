@@ -4,12 +4,10 @@ import java.io.InputStreamReader
 
 import org.json4s.JsonAST._
 import org.json4s.native._
-import treehugger.forest._
-import treehugger.forest.definitions._
-import treehugger.forest.treehuggerDSL._
 import org.json4s.DefaultFormats
 import scala.util.matching.Regex
 import lt.tabo.json2s.Utils.{canBeDate, toUpperCamel, toSingular}
+import lt.tabo.json2s.code._
 
 case class JsonToScala(json: JValue, className: String) {
   def asJson = prettyJson(renderJValue(json))
@@ -20,9 +18,9 @@ case class JsonToScala(json: JValue, className: String) {
 }
 
 object JsonToScala {
-  def classFor(value: JValue, paramName: String): (Seq[Tree], Type) = value match {
+  def classFor(value: JValue, paramName: String): (Seq[CaseClassStub], ClassType) = value match {
     case JString(s) =>
-      if (canBeDate(s)) (Nil, "java.util.Date")
+      if (canBeDate(s)) (Nil, DateClass)
       else (Nil, StringClass)
     case i: JInt => (Nil, IntClass)
     case d: JDouble => (Nil, DoubleClass)
@@ -32,13 +30,13 @@ object JsonToScala {
     case x => throw new Error("Don't know how to handle " + x)
   }
 
-  def classForJArray(json: JArray, paramName: String): (Seq[Tree], Type) = {
+  def classForJArray(json: JArray, paramName: String): (Seq[CaseClassStub], ClassType) = {
     val arr = json.arr
-    def terminal(t: Type) = (Nil: Seq[Tree], t)
-    val (trees: Seq[Tree], arrType: Type) =
+    def terminal(t: ClassType) = (Nil: Seq[CaseClassStub], t)
+    val (trees: Seq[CaseClassStub], arrType: ClassType) =
       if (arr.isEmpty) terminal(NothingClass)
       else if (arr.forall(_.isInstanceOf[JString])) {
-        if (arr.forall(js => canBeDate(js.asInstanceOf[JString].s))) terminal("java.util.Date")
+        if (arr.forall(js => canBeDate(js.asInstanceOf[JString].s))) terminal(DateClass)
         else terminal(StringClass)
       }
       else if (arr.forall(_.isInstanceOf[JInt])) terminal(IntClass)
@@ -50,30 +48,27 @@ object JsonToScala {
         // not safe - assume all arrays are of the same type, just use the first one
         classForJArray(arr.head.asInstanceOf[JArray], paramName)
       else throw new Error("Array types are not all the same in " + json)
-    (trees, TYPE_LIST(arrType))
+    (trees, ListClass(arrType))
   }
 
-  def getParamsForJObject(json: JObject): (Seq[Tree], Seq[(String, Type)]) = {
-    val (moreClasses: Seq[Tree], params: Seq[(String,Type)]) = ((Seq[Tree](),Seq[(String,Type)]()) /: json.obj.toList) {
+  def getParamsForJObject(json: JObject): (Seq[CaseClassStub], Seq[(String, ClassType)]) = {
+    val (moreClasses: Seq[CaseClassStub], params: Seq[(String,ClassType)]) = ((Seq[CaseClassStub](),Seq[(String,ClassType)]()) /: json.obj.toList) {
       case ((treesSoFar, valsSoFar), (name: String, value)) =>
-        val (classDefs: Seq[Tree],thisClass: Type) = classFor(value, name)
+        val (classDefs: Seq[CaseClassStub],thisClass: ClassType) = classFor(value, name)
         (treesSoFar ++ classDefs, valsSoFar :+ (name, thisClass))
     }
     (moreClasses, params)
   }
 
-  def generateClassFromJObjects(jsons: List[JObject], className: String): (Seq[Tree], Type) = {
-    val TopCaseClass = RootClass.newClass(className)
-
-    val objectParams: List[(Seq[Tree], Seq[(String, Type, Boolean)])] =
+  def generateClassFromJObjects(jsons: List[JObject], className: String): (Seq[CaseClassStub], ClassType) = {
+    val objectParams: List[(Seq[CaseClassStub], Seq[(String, ClassType, Boolean)])] =
       jsons.map(getParamsForJObject).map { case (trees, ps) =>
         (trees, ps.map { case (name, classType) => (name, classType, false) })
       }
     val (moreClasses, params) = objectParams.reduce((x,y) => (x,y) match {
       case ((someClasses1, someParams1), (someClasses2, someParams2)) =>
-        // someClasses1 union someClasses2 - hack since .equals is not the same as the treeToString
-        // TODO: a recursive merge
-        val mergeClasses = (someClasses1 ++ someClasses2).groupBy(treeToString(_)).map(_._2.head)
+        // TODO: a recursive merge - eg resolving nested differences with options
+        val mergeClasses = (someClasses1 union someClasses2)
         // the boolean means "optional"
         val (optParams1, reqPs1) = someParams1.partition(_._3)
         val (optParams2, reqPs2) = someParams2.partition(_._3)
@@ -89,20 +84,20 @@ object JsonToScala {
         (mergeClasses, mergeParams.map(_._2))
     })
 
-    val newClass: Tree = CASECLASSDEF(TopCaseClass).withParams(params.toIterable.map {
+    val newClass: CaseClassStub = CaseClassStub(className, params.map {
       case (name, classType, optional) =>
-        PARAM(Utils.quotedName(name), if (optional) TYPE_OPTION(classType) else classType).empty
+        BasicParam(name, if (optional) OptionClass(classType) else classType)
     })
 
-    ((moreClasses :+ newClass).toSeq, className)
+    ((moreClasses :+ newClass).toSeq, ClassType(className))
   }
 
-  def generateClassFromJObject(json: JObject, className: String): (Seq[Tree], Type) = {
+  def generateClassFromJObject(json: JObject, className: String): (Seq[CaseClassStub], ClassType) = {
     generateClassFromJObjects(List(json), className)
   }
 
-  def treesToString(trees: Iterable[Tree]) = {
-    treeToString(BLOCK(trees).withoutPackage)
+  def treesToString(trees: Iterable[CaseClassStub]) = {
+    trees.map(_.render).mkString("\n")
   }
 
   def classForExamples(jsons: Seq[String], className: String): String = {
