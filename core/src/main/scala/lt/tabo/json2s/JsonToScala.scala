@@ -3,13 +3,21 @@ package lt.tabo.json2s
 import java.io.InputStreamReader
 
 import org.json4s.JsonAST._
-import org.json4s.native.JsonParser
+import org.json4s.native._
 import treehugger.forest._
 import treehugger.forest.definitions._
 import treehugger.forest.treehuggerDSL._
 import org.json4s.DefaultFormats
 import scala.util.matching.Regex
 import lt.tabo.json2s.Utils.{canBeDate, toUpperCamel, toSingular}
+
+case class JsonToScala(json: JValue, className: String) {
+  def asJson = prettyJson(renderJValue(json))
+  def asScala = {
+    import JsonToScala._
+    treesToString(classFor(json, className)._1)
+  }
+}
 
 object JsonToScala {
   def classFor(value: JValue, paramName: String): (Seq[Tree], Type) = value match {
@@ -18,6 +26,7 @@ object JsonToScala {
       else (Nil, StringClass)
     case i: JInt => (Nil, IntClass)
     case d: JDouble => (Nil, DoubleClass)
+    case b: JBool => (Nil, BooleanClass)
     case o: JObject => generateClassFromJObject(o, toUpperCamel(paramName))
     case a: JArray => classForJArray(a, paramName)
     case x => throw new Error("Don't know how to handle " + x)
@@ -34,6 +43,7 @@ object JsonToScala {
       }
       else if (arr.forall(_.isInstanceOf[JInt])) terminal(IntClass)
       else if (arr.forall(_.isInstanceOf[JDouble])) terminal(DoubleClass)
+      else if (arr.forall(_.isInstanceOf[JBool])) terminal(BooleanClass)
       else if (arr.forall(_.isInstanceOf[JObject]))
         generateClassFromJObjects(arr.map(_.asInstanceOf[JObject]), toUpperCamel(toSingular(paramName)))
       else if (arr.forall(_.isInstanceOf[JArray]))
@@ -81,7 +91,7 @@ object JsonToScala {
 
     val newClass: Tree = CASECLASSDEF(TopCaseClass).withParams(params.toIterable.map {
       case (name, classType, optional) =>
-        PARAM(quotedName(name), if (optional) TYPE_OPTION(classType) else classType).empty
+        PARAM(Utils.quotedName(name), if (optional) TYPE_OPTION(classType) else classType).empty
     })
 
     ((moreClasses :+ newClass).toSeq, className)
@@ -95,11 +105,7 @@ object JsonToScala {
     treeToString(BLOCK(trees).withoutPackage)
   }
 
-  def apply(json: JValue, className: String): String = {
-    treesToString(classFor(json, className)._1)
-  }
-
-  def apply(jsons: Seq[String], className: String): String = {
+  def classForExamples(jsons: Seq[String], className: String): String = {
     treesToString {
       generateClassFromJObjects(jsons.toList.map(JsonParser.parse(_) match {
         case obj: JObject => obj
@@ -108,7 +114,7 @@ object JsonToScala {
     }
   }
 
-  def apply(json: String, className: String): String = {
+  def apply(json: String, className: String): JsonToScala = {
     apply(JsonParser.parse(json), className)
   }
 
