@@ -1,4 +1,8 @@
 $(document).ready(function() {
+    $scala = $("#scala-code");
+    $scala.html(prettyPrintOne($scala.html()));
+    $scala.addClass("prettyprinted");
+    $scala.addClass("prettyprint");
     $("#scala-code .typ").each(function(index) {
         $(this).data("curr", $(this).text());
     });

@@ -2,12 +2,20 @@
 @(j2s: lt.tabo.json2s.JsonToScala, jsonForm: Form[JsonToScala])
 
 @import helper.twitterBootstrap._
-<script src="@routes.Assets.at("javascripts/google-code-prettify/run_prettify.js")" type="text/javascript"></script>
 
+<script src="@routes.Assets.at("javascripts/google-code-prettify/prettify.js")" type="text/javascript"></script>
 @main("json2s") {
     <h3>Your scala code is ready!</h3>
     @scalaform(j2s.classDefs)
     <h3>Original json</h3>
-    <pre class="prettyprint">@j2s.asJson</pre>
+    <pre id="json-orig">@j2s.asJson</pre>
     @jsonform(jsonForm.fill(j2s))
 }
+<script>
+$(document).ready(function() {
+    $json = $("#json-orig");
+    $json.html(prettyPrintOne($json.html()));
+    $json.addClass("prettyprinted");
+    $json.addClass("prettyprint");
+});
+</script>
