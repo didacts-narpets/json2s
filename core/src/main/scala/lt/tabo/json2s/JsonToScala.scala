@@ -4,37 +4,33 @@ import java.io.InputStreamReader
 
 import org.json4s.JsonAST._
 import org.json4s.native._
-import org.json4s.DefaultFormats
-import scala.util.matching.Regex
 import lt.tabo.json2s.Utils.{canBeDate, toUpperCamel, toSingular}
 import lt.tabo.json2s.code._
 
 case class JsonToScala(json: JValue, className: String) {
   def asJson = prettyJson(renderJValue(json))
-  def asScala = {
-    import JsonToScala._
-    treesToString(classFor(json, className)._1)
-  }
+  def classDefs = JsonToScala.classFor(json, className)._1
+  def asScala = classDefs.render
 }
 
 object JsonToScala {
-  def classFor(value: JValue, paramName: String): (Seq[CaseClassStub], ClassType) = value match {
+  def classFor(value: JValue, paramName: String): (ClassDefs, ClassType) = value match {
     case JString(s) =>
-      if (canBeDate(s)) (Nil, DateClass)
-      else (Nil, StringClass)
-    case i: JInt => (Nil, IntClass)
-    case d: JDouble => (Nil, DoubleClass)
-    case b: JBool => (Nil, BooleanClass)
+      if (canBeDate(s)) (ClassDefs(), DateClass)
+      else (ClassDefs(), StringClass)
+    case i: JInt => (ClassDefs(), IntClass)
+    case d: JDouble => (ClassDefs(), DoubleClass)
+    case b: JBool => (ClassDefs(), BooleanClass)
     case o: JObject => generateClassFromJObject(o, toUpperCamel(paramName))
     case a: JArray => classForJArray(a, paramName)
-    case JNull => (Nil, AnyClass)
+    case JNull => (ClassDefs(), AnyClass)
     case x => throw new Error("Don't know how to handle " + x)
   }
 
-  def classForJArray(json: JArray, paramName: String): (Seq[CaseClassStub], ClassType) = {
+  def classForJArray(json: JArray, paramName: String): (ClassDefs, ClassType) = {
     val arr = json.arr
-    def terminal(t: ClassType) = (Nil: Seq[CaseClassStub], t)
-    val (trees: Seq[CaseClassStub], arrType: ClassType) =
+    def terminal(t: ClassType) = (ClassDefs(): ClassDefs, t)
+    val (trees: ClassDefs, arrType: ClassType) =
       if (arr.isEmpty) terminal(NothingClass)
       else if (arr.forall(_.isInstanceOf[JString])) {
         if (arr.forall(js => canBeDate(js.asInstanceOf[JString].s))) terminal(DateClass)
@@ -52,17 +48,17 @@ object JsonToScala {
     (trees, ListClass(arrType))
   }
 
-  def getParamsForJObject(json: JObject): (Seq[CaseClassStub], Seq[BasicParam]) = {
-    val (moreClasses: Seq[CaseClassStub], params: Seq[BasicParam]) = ((Seq[CaseClassStub](),Seq[BasicParam]()) /: json.obj.toList) {
+  def getParamsForJObject(json: JObject): (ClassDefs, Seq[BasicParam]) = {
+    val (moreClasses: ClassDefs, params: Seq[BasicParam]) = ((ClassDefs(),Seq[BasicParam]()) /: json.obj.toList) {
       case ((treesSoFar, valsSoFar), (paramName: String, paramValue)) =>
-        val (classDefs: Seq[CaseClassStub],paramClass: ClassType) = classFor(paramValue, paramName)
+        val (classDefs: ClassDefs,paramClass: ClassType) = classFor(paramValue, paramName)
         (treesSoFar ++ classDefs, valsSoFar :+ BasicParam(paramName, paramClass))
     }
     (moreClasses, params)
   }
 
-  def generateClassFromJObjects(jsons: List[JObject], className: String): (Seq[CaseClassStub], ClassType) = {
-    val objectParams: List[(Seq[CaseClassStub], Seq[BasicParam])] =
+  def generateClassFromJObjects(jsons: List[JObject], className: String): (ClassDefs, ClassType) = {
+    val objectParams: List[(ClassDefs, Seq[BasicParam])] =
       jsons.map(getParamsForJObject)
     val (moreClasses, params) = objectParams.reduce((x,y) => (x,y) match {
       case ((someClasses1, someParams1), (someClasses2, someParams2)) =>
@@ -80,29 +76,23 @@ object JsonToScala {
           }
         }
         val mergeParams = mergeOpts ++ mergeReqs
-        (mergeClasses, mergeParams.map(_._2))
+        (ClassDefs(mergeClasses:_*), mergeParams.map(_._2))
     })
 
     val newClass: CaseClassStub = CaseClassStub(className, params)
 
-    ((moreClasses :+ newClass).toSeq, ClassType(className))
+    (moreClasses :+ newClass, ClassType(className))
   }
 
-  def generateClassFromJObject(json: JObject, className: String): (Seq[CaseClassStub], ClassType) = {
+  def generateClassFromJObject(json: JObject, className: String): (ClassDefs, ClassType) = {
     generateClassFromJObjects(List(json), className)
   }
 
-  def treesToString(trees: Iterable[CaseClassStub]) = {
-    trees.map(_.render).mkString("\n")
-  }
-
   def classForExamples(jsons: Seq[String], className: String): String = {
-    treesToString {
-      generateClassFromJObjects(jsons.toList.map(JsonParser.parse(_) match {
-        case obj: JObject => obj
-        case x => throw new IllegalArgumentException("Expected JObject, got " + x)
-      }), className)._1
-    }
+    generateClassFromJObjects(jsons.toList.map(JsonParser.parse(_) match {
+      case obj: JObject => obj
+      case x => throw new IllegalArgumentException("Expected JObject, got " + x)
+    }), className)._1.render
   }
 
   def apply(json: String, className: String): JsonToScala = {
