@@ -6,7 +6,7 @@
 
 @main("json2s") {
     <h3>Your scala code is ready!</h3>
-    <pre class="prettyprint">@j2s.asScala</pre>
+    @scalaform(j2s.classDefs)
     <h3>Original json</h3>
     <pre class="prettyprint">@j2s.asJson</pre>
     @jsonform(jsonForm.fill(j2s))
