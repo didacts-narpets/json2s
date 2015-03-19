@@ -5,9 +5,9 @@ $.fn.extend({
   // and changes a help message to the result of the err callback
   validate: function(p, err) {
     this.keyup(function() {
-      $parent = $(this).parent("div.form-group");
-      $submit = $(this).parent("form").find("button[type=submit]");
-      $help = $parent.find("span.help-block");
+      var $parent = $(this).parent("div.form-group");
+      var $submit = $(this).parent("form").find("button[type=submit]");
+      var $help = $parent.find("span.help-block");
       if (p($(this).val())) {
         $parent.addClass("has-success");
         $parent.removeClass("has-error");
@@ -25,23 +25,23 @@ $.fn.extend({
 });
 
 $("#class-name").validate(function(val) {
-   return val.match(/^[a-zA-Z]\w*$/);
+  return val.match(/^[a-zA-Z]\w*$/);
 }, function(val) {
   return "Class name '" + val + "' is invalid - must match /^[a-zA-Z]\\w*$/";
 });
 
 $("#json-input").validate(function(val) {
-  var json = false
+  var json = false;
   try {
     json = jQuery.parseJSON(val);
   } catch(err) {
-  // todo: alert user of parse error in json
+    // todo: alert user of parse error in json
   }
   return typeof json == 'object';
 }, function(val) {
- var msg = "Please enter a valid json object or array of objects"
- try {jQuery.parseJSON(val);} catch(err) {
-   msg = err.message;
- }
- return msg;
+  var msg = "Please enter a valid json object or array of objects"
+  try {jQuery.parseJSON(val);} catch(err) {
+    msg = err.message;
+  }
+  return msg;
 });

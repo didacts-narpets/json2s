@@ -1,7 +1,4 @@
-@import lt.tabo.json2s.JsonToScala
-@(j2s: lt.tabo.json2s.JsonToScala, jsonForm: Form[JsonToScala])
-
-@import helper.twitterBootstrap._
+@(j2s: lt.tabo.json2s.JsonToScala, jsonForm: Form[lt.tabo.json2s.JsonToScala])
 
 <script src="@routes.Assets.at("javascripts/google-code-prettify/prettify.js")" type="text/javascript"></script>
 @main("json2s") {
@@ -13,7 +10,7 @@
 }
 <script>
 $(document).ready(function() {
-    $json = $("#json-orig");
+    var $json = $("#json-orig");
     $json.html(prettyPrintOne($json.html()));
     $json.addClass("prettyprinted");
     $json.addClass("prettyprint");

@@ -1,14 +1,15 @@
-@import lt.tabo.json2s.code._
-@(classDefs: ClassDefs)
+@(classDefs: lt.tabo.json2s.code.ClassDefs)
 
-@import lt.tabo.json2s.JsonToScala
-@import helper._
+@import lt.tabo.json2s.code._
+@import views.html.helper._
 
 <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
-<pre id="scala-code" class="lang-scala linenums">@classDefs.map { case CaseClassStub(name, ps) =>@(
-    <p>case class <span class="classname">{name}</span>({ps.map(_.render).mkString(", ")})</p>
-)}</pre>
+<pre id="scala-code" class="lang-scala linenums">@{
+    classDefs.map { case CaseClassStub(name, ps) =>
+        <p>case class <span class="classname">{name}</span>({ps.map(_.render).mkString(", ")})</p>
+    }
+}</pre>
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
 
-<script src="@routes.Assets.at("javascripts/scalaform.js")" type="text/javascript"></script>
+<script src='@routes.Assets.at("javascripts/scalaform.js")' type="text/javascript"></script>

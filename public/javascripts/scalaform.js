@@ -1,18 +1,18 @@
 $(document).ready(function() {
-    $scala = $("#scala-code");
+    var $scala = $("#scala-code");
     $scala.html(prettyPrintOne($scala.html()));
     $scala.addClass("prettyprinted");
     $scala.addClass("prettyprint");
-    $("#scala-code .typ").each(function(index) {
+    $scala.find(".typ").each(function() {
         $(this).data("curr", $(this).text());
     });
-    $("#scala-code .classname .typ").each(function(index) {
+    $scala.find(".classname .typ").each(function() {
         var $classname = $(this);
         $classname.editable({
             success: function(response, newValue) {
                 console.log(newValue);
                 var prevValue = $classname.data('curr');
-                $("#scala-code .typ").each(function(index) {
+                $scala.find(".typ").each(function() {
                     if ($(this).data("curr") == prevValue) {
                         $(this).data("curr", newValue);
                         $(this).text(newValue);
