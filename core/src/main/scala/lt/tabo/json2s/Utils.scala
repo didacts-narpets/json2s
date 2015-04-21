@@ -47,7 +47,7 @@ object Utils {
 
   object Regexes {
     // splits the last word from everything else
-    val LastWordRegex = "(.*\\b(?:[A-Za-z][a-z]+)*)([A-Za-z][a-z]+)".r
+    val LastWordRegex = "(.*\\b(?:[A-Za-z][a-z]+)*)([A-Z][a-z]+)".r
     // matches special -y words that end in ies, like fly=>flies
     val EndsWithIes   = "(.*[b-z&&[^eiou]])ies".r
     // matches special words that end in es, like church=>churches
