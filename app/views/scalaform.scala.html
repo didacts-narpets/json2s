@@ -4,11 +4,24 @@
 @import views.html.helper._
 
 <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
-<pre id="scala-code" class="lang-scala linenums">@{
-    classDefs.map { case CaseClassStub(name, ps) =>
-        <p>case class <span class="classname">{name}</span>({ps.map(_.render).mkString(", ")})</p>
-    }
-}</pre>
+<pre id="scala-code" class="lang-scala linenums">
+@{classDefs.map { case CaseClassStub(name, ps) =>
+  <div>case class <span class="classname">{name}</span>({
+  val rendered = ps.map(_.render)
+  val oneLine = rendered.mkString(", ")
+  if (oneLine.length <= 80) oneLine else rendered.map("\n  " + _).mkString(",")
+  })</div>
+}}
+
+import spray.json._
+
+trait <span class="classname">@{classDefs.last.name}</span>Protocol extends DefaultJsonProtocol {
+@{classDefs.map { case CaseClassStub(name, ps) =>
+  <div>&nbsp;&nbsp;implicit val format<span class="classname">{name}</span> = jsonFormat{ps.size}(<span class="classname">{name}</span>)</div>
+}}}
+
+object <span class="classname">@{classDefs.last.name}</span>Protocol extends <span class="classname">@{classDefs.last.name}</span>Protocol
+</pre>
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
 
