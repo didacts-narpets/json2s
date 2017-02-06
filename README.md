@@ -8,7 +8,7 @@ web app to demo the functionality but the actual
 implementation can be found in the "core" module
 (it is pretty small).
 
-The app can be viewed at http://json2s.tabo.lt
+The app can be viewed at https://json2s.herokuapp.com/
 
 ### Motivation
 
